@@ -50,7 +50,12 @@ def prediction(update, _):
 
 
 def get_user_age(update, context):
-    context.user_data['age'] = int(update.message.text)
+    age = update.message.text
+    if age.isdigit():
+        context.user_data['age'] = int(age)
+    else:
+        context.user_data['age'] = 0
+
     global user_data
     try:
         user_data.get_age(context.user_data['age'])
@@ -62,10 +67,10 @@ def get_user_age(update, context):
 
 def get_user_sex(update, context):
     sex = update.message.text
-    if sex == 'Мужчина':
-        context.user_data['sex'] = 1
-    elif sex == 'Женщина':
+    if sex == 'Женщина':
         context.user_data['sex'] = 0
+    else:
+        context.user_data['sex'] = 1
 
     global user_data
     try:
@@ -78,7 +83,12 @@ def get_user_sex(update, context):
 
 
 def get_user_cigs(update, context):
-    context.user_data['cigs'] = int(update.message.text)
+    cigs = update.message.text
+    if cigs.isdigit():
+        context.user_data['cigs'] = int(cigs)
+    else:
+        context.user_data['cigs'] = 0
+
     global user_data
     try:
         user_data.get_cigs(context.user_data['cigs'])
@@ -89,7 +99,12 @@ def get_user_cigs(update, context):
 
 
 def get_user_chol(update, context):
-    context.user_data['chol'] = float(update.message.text)
+    chol = update.message.text.replace(',', '.')
+    if chol.isdigit():
+        context.user_data['chol'] = float(chol)
+    else:
+        context.user_data['chol'] = 5
+
     global user_data
     try:
         user_data.get_chol(context.user_data['chol'])
@@ -104,7 +119,7 @@ def get_user_bp(update, context):
     text = update.message.text
     if text == 'да':
         context.user_data['bp'] = 1
-    elif text == 'нет':
+    else:
         context.user_data['bp'] = 0
 
     global user_data
@@ -117,7 +132,12 @@ def get_user_bp(update, context):
 
 
 def get_user_glucose(update, context):
-    context.user_data['glucose'] = float(update.message.text)
+    glucose = update.message.text.replace(',', '.')
+    if glucose.isdigit():
+        context.user_data['glucose'] = float(glucose)
+    else:
+        context.user_data['glucose'] = 5
+
     chat_id = update.message.chat_id
     first_name = update.message.chat.first_name
     print(context.user_data)
