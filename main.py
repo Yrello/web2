@@ -1,12 +1,10 @@
 from telegram.ext import Updater, MessageHandler, Filters, ConversationHandler
-from telegram.ext import CallbackContext, CommandHandler
+from telegram.ext import CommandHandler
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 import markovify
 from user_statistic import Stat
-from predict import pred
-import numpy
-import sys
 
+# for buttons
 markup1 = ReplyKeyboardMarkup([['/predict']], one_time_keyboard=True)
 
 reply_keyboard = [['Мужчина', 'Женщина']]
@@ -29,23 +27,26 @@ def send_anek(update, _):
 
 
 def send_welcome(update, _):
-
-    chat_id = update.message.chat_id
     first_name = update.message.chat.first_name
     print('User:', first_name)
-    update.message.reply_text('Добро пожаловать! Этот бот создан для диагностики развития сердечнососудистых заболеваний '
-                              'в ближайшие 10 лет\nИспользуйте для помощи:\n/help')
+    update.message.reply_text('Добро пожаловать! Этот бот создан для '
+                              'диагностики развития сердечно-сосудистых '
+                              'заболеваний в ближайшие 10 лет.\nИспользуйте '
+                              'для помощи:\n/help')
     return 1
 
 
 def send_help(update, _):
-    update.message.reply_text('Список команд:\n/help: помощь\n/predict: начать диагностику', reply_markup=markup1)
+    update.message.reply_text('Список команд:\n/help: помощь\n/predict: '
+                              'начать диагностику', reply_markup=markup1)
 
 
 def prediction(update, _):
-    update.message.reply_text('Для того, чтобы начать диагностику, следует сначала получить анализы '
-                              'крови на количесво холестерина и сахара в крови')
-    update.message.reply_text('Итак, приступим!\nДля начала введите ваш возраст:')
+    update.message.reply_text('Для того, чтобы начать диагностику, следует '
+                              'сначала получить анализы крови на количесво '
+                              'холестерина и сахара в крови.')
+    update.message.reply_text('Итак, приступим!\nДля начала введите ваш '
+                              'возраст:')
     return 2
 
 
@@ -54,6 +55,7 @@ def get_user_age(update, context):
     if age.isdigit():
         context.user_data['age'] = int(age)
     else:
+        # value in case of error
         context.user_data['age'] = 0
 
     global user_data
@@ -77,8 +79,9 @@ def get_user_sex(update, context):
         user_data.get_sex(context.user_data['sex'])
     except:
         pass
-    update.message.reply_text('Отлично! Если вы курите, то введите количество сигарет, которые вы '
-                              'выкуриваете за день(0, если не курите)')
+    update.message.reply_text('Отлично! Если вы курите, то введите количество '
+                              'сигарет, которые вы выкуриваете за день(0, '
+                              'если не курите):')
     return 4
 
 
@@ -94,7 +97,7 @@ def get_user_cigs(update, context):
         user_data.get_cigs(context.user_data['cigs'])
     except:
         pass
-    update.message.reply_text('Введите общий уровень холестерина в крови')
+    update.message.reply_text('Введите общий уровень холестерина в крови:')
     return 5
 
 
@@ -103,6 +106,7 @@ def get_user_chol(update, context):
     if chol.isdigit():
         context.user_data['chol'] = float(chol)
     else:
+        # value in case of error
         context.user_data['chol'] = 5
 
     global user_data
@@ -110,8 +114,9 @@ def get_user_chol(update, context):
         user_data.get_chol(context.user_data['chol'])
     except:
         pass
-    update.message.reply_text('Принимаете ли вы в данный момент препараты, которые влияют на ваше '
-                              'кровяное давление?', reply_markup=markup6)
+    update.message.reply_text('Принимаете ли вы в данный момент препараты, '
+                              'которые влияют на ваше кровяное давление?',
+                              reply_markup=markup6)
     return 6
 
 
@@ -127,7 +132,7 @@ def get_user_bp(update, context):
         user_data.get_bp(int(context.user_data['bp']))
     except:
         pass
-    update.message.reply_text('Введите общий уровень глюкозы в крови')
+    update.message.reply_text('Введите общий уровень глюкозы в крови:')
     return 7
 
 
@@ -136,11 +141,11 @@ def get_user_glucose(update, context):
     if glucose.isdigit():
         context.user_data['glucose'] = float(glucose)
     else:
+        # value in case of error
         context.user_data['glucose'] = 5
 
     chat_id = update.message.chat_id
     first_name = update.message.chat.first_name
-    print(context.user_data)
 
     global user_data
     try:
@@ -148,48 +153,62 @@ def get_user_glucose(update, context):
     except:
         pass
     update.message.reply_text('Отлично, все почти готово!')
-    # print(chat_id, ':', *user_data.send_back())
     print(chat_id, '-', first_name, ':', user_data.predict_result()[0])
-    # update.message.reply_text(user_data.predict_result()[0])
     if user_data.predict_result()[0] == 0:
-        update.message.reply_text('С большой вероятностью риск развития ишемической болезни сердца '
-                                  'у вас отсутствует')
+        update.message.reply_text('С большой вероятностью риск развития '
+                                  'ишемической болезни сердца у вас '
+                                  'отсутствует.')
     if user_data.predict_result()[0] == 1:
-        update.message.reply_text('Предварительный анализ показывает что у вас есть риск развития '
-                                  'ишемической болезни сердца')
-    update.message.reply_text('Для уточнения результатов обязательно проконсультируйтесь со специалистом')
+        update.message.reply_text('Предварительный анализ показывает, что у '
+                                  'вас есть риск развития ишемической '
+                                  'болезни сердца.')
+    update.message.reply_text('Для уточнения результатов обязательно '
+                              'проконсультируйтесь со специалистом.')
     return ConversationHandler.END
 
 
-def stop(update, _):
-    update.message.reply_text('Диагностика остановлена.', reply_keyboard=ReplyKeyboardRemove())
+def stop(_, update):
+    update.message.reply_text('Диагностика остановлена.',
+                              reply_keyboard=ReplyKeyboardRemove())
     return ConversationHandler.END
 
 
 def main():
-    updater = Updater('1003593379:AAEXv1sd57DbWDh0m7u-eQQSz3MYaddCVzE', use_context=True)
+    updater = Updater('1003593379:AAEXv1sd57DbWDh0m7u-eQQSz3MYaddCVzE',
+                      use_context=True)
 
     dp = updater.dispatcher
 
+    # user dialog handler
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('predict', prediction)],
 
         states={
-            1: [MessageHandler(Filters.text, prediction, pass_user_data=True)],
-            2: [MessageHandler(Filters.text, get_user_age, pass_user_data=True)],
-            3: [MessageHandler(Filters.text, get_user_sex, pass_user_data=True)],
-            4: [MessageHandler(Filters.text, get_user_cigs, pass_user_data=True)],
-            5: [MessageHandler(Filters.text, get_user_chol, pass_user_data=True)],
-            6: [MessageHandler(Filters.text, get_user_bp, pass_user_data=True)],
-            7: [MessageHandler(Filters.text, get_user_glucose, pass_user_data=True)]
+            # responses
+            1: [MessageHandler(
+                Filters.text, prediction, pass_user_data=True)],
+            2: [MessageHandler(
+                Filters.text, get_user_age, pass_user_data=True)],
+            3: [MessageHandler(
+                Filters.text, get_user_sex, pass_user_data=True)],
+            4: [MessageHandler(
+                Filters.text, get_user_cigs, pass_user_data=True)],
+            5: [MessageHandler(
+                Filters.text, get_user_chol, pass_user_data=True)],
+            6: [MessageHandler(
+                Filters.text, get_user_bp, pass_user_data=True)],
+            7: [MessageHandler(
+                Filters.text, get_user_glucose, pass_user_data=True)]
         },
 
         fallbacks=[CommandHandler('stop', stop)]
     )
 
+    # dispatcher commands that aren't included in handler
     dp.add_handler(CommandHandler('start', send_welcome))
     dp.add_handler(CommandHandler('help', send_help))
     dp.add_handler(CommandHandler('anek', send_anek))
+
     dp.add_handler(conv_handler)
 
     updater.start_polling()
